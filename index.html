@@ -1,0 +1,566 @@
+‎
+‎<!DOCTYPE html>
+‎<html lang="en" data-theme="dark">
+‎<head>
+‎<meta charset="UTF-8">
+‎<meta name="viewport" content="width=device-width, initial-scale=1.0">
+‎<title>StudyFlow - Student Study Planner</title>
+‎<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+‎<style>
+‎:root {
+‎  --bg: #0B0B14;
+‎  --bg2: #13131F;
+‎  --card: #1A1A2E;
+‎  --card2: #21213D;
+‎  --border: #2A2A44;
+‎  --text: #F1F1FF;
+‎  --muted: #8B8BA7;
+‎  --primary: #7C5CFF;
+‎  --primary2: #3B82F6;
+‎  --gradient: linear-gradient(135deg, #7C5CFF 0%, #3B82F6 100%);
+‎  --radius: 20px;
+‎  --shadow: 0 10px 30px rgba(0,0,0,0.3);
+‎}
+‎[data-theme="light"] {
+‎  --bg: #F5F7FF;
+‎  --bg2: #FFFFFF;
+‎  --card: #FFFFFF;
+‎  --card2: #F1F3FF;
+‎  --border: #E6E8F5;
+‎  --text: #1A1A2E;
+‎  --muted: #6B7280;
+‎  --shadow: 0 10px 30px rgba(124,92,255,0.08);
+‎}
+‎* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+‎body { background: var(--bg); color: var(--text); display:flex; min-height:100vh; transition:0.3s; }
+‎::-webkit-scrollbar { width:6px; height:6px; } ::-webkit-scrollbar-thumb { background: var(--border); border-radius:10px; }
+‎
+‎/* Sidebar */
+‎.sidebar {
+‎  width:260px; background: var(--bg2); border-right:1px solid var(--border);
+‎  position:fixed; height:100vh; padding:24px 16px; display:flex; flex-direction:column; z-index:20; transition:0.3s;
+‎}
+‎.logo { display:flex; align-items:center; gap:12px; font-size:22px; font-weight:800; margin-bottom:32px; }
+‎.logo-icon { width:40px; height:40px; background:var(--gradient); border-radius:12px; display:grid; place-items:center; font-size:20px; }
+‎.nav { display:flex; flex-direction:column; gap:6px; flex:1; }
+‎.nav-btn {
+‎  display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:12px; border:none;
+‎  background:transparent; color:var(--muted); cursor:pointer; font-size:14px; font-weight:500; width:100%; text-align:left; transition:0.2s;
+‎}
+‎.nav-btn.active, .nav-btn:hover { background:var(--card); color:var(--text); }
+‎.nav-btn.active { background:var(--gradient); color:white; }
+‎.sidebar-foot { border-top:1px solid var(--border); padding-top:16px; margin-top:16px; }
+‎.streak-card { background:var(--gradient); border-radius:16px; padding:16px; color:white; text-align:center; }
+‎
+‎/* Main */
+‎.main { margin-left:260px; flex:1; min-width:0; }
+‎.topbar {
+‎  position:sticky; top:0; z-index:10; background: color-mix(in srgb, var(--bg) 80%, transparent);
+‎  backdrop-filter:blur(12px); border-bottom:1px solid var(--border);
+‎  padding:16px 32px; display:flex; justify-content:space-between; align-items:center; gap:16px;
+‎}
+‎.search { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 14px; display:flex; align-items:center; gap:8px; flex:1; max-width:400px; }
+‎.search input { background:transparent; border:none; outline:none; color:var(--text); width:100%; }
+‎.theme-btn { width:44px; height:44px; border-radius:12px; border:1px solid var(--border); background:var(--card); color:var(--text); cursor:pointer; font-size:18px; }
+‎.content { padding:32px; max-width:1200px; margin:0 auto; }
+‎.section { display:none; animation:fade 0.3s; } .section.active { display:block; }
+‎@keyframes fade { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)} }
+‎
+‎/* Cards & Grid */
+‎.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+‎.grid3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
+‎.grid4 { display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; }
+‎.card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; }
+‎.stat-icon { width:44px; height:44px; border-radius:12px; display:grid; place-items:center; font-size:20px; }
+‎.btn { background:var(--gradient); color:white; border:none; padding:12px 20px; border-radius:12px; font-weight:600; cursor:pointer; transition:0.2s; }
+‎.btn:hover { opacity:0.9; transform:translateY(-1px); }
+‎.btn-ghost { background:var(--card2); color:var(--text); border:1px solid var(--border); }
+‎.btn-sm { padding:8px 14px; font-size:13px; }
+‎.input, .select, .textarea {
+‎  width:100%; background:var(--bg2); border:1px solid var(--border); border-radius:12px;
+‎  padding:12px 14px; color:var(--text); outline:none;
+‎}
+‎.input:focus, .select:focus, .textarea:focus { border-color:#7C5CFF; }
+‎.badge { padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; }
+‎.progress { height:8px; background:var(--bg2); border-radius:10px; overflow:hidden; }
+‎.progress-bar { height:100%; background:var(--gradient); border-radius:10px; transition:0.5s; }
+‎
+‎/* Task */
+‎.task { display:flex; gap:12px; align-items:center; background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:14px; }
+‎.task.done { opacity:0.6; } .task.done p { text-decoration:line-through; }
+‎
+‎/* Timetable */
+‎.timetable { display:grid; grid-template-columns:60px repeat(7, 1fr); gap:1px; background:var(--border); border-radius:16px; overflow:hidden; border:1px solid var(--border); }
+‎.tt-head, .tt-time, .tt-cell { background:var(--card); padding:10px; text-align:center; font-size:12px; min-height:60px; }
+‎.tt-head { font-weight:700; background:var(--card2); }
+‎.tt-cell.has-event { background:var(--gradient); color:white; border-radius:8px; margin:2px; display:flex; flex-direction:column; justify-content:center; cursor:pointer; }
+‎
+‎/* Pomodoro */
+‎.timer-circle {
+‎  width:260px; height:260px; border-radius:50%; border:8px solid var(--border);
+‎  display:grid; place-items:center; margin:0 auto; position:relative;
+‎}
+‎.timer-circle.active { border-color:#7C5CFF; box-shadow:0 0 40px rgba(124,92,255,0.3); }
+‎
+‎/* Mobile */
+‎.mobile-nav { display:none; position:fixed; bottom:0; left:0; right:0; background:var(--bg2); border-top:1px solid var(--border); padding:8px; z-index:30; grid-template-columns:repeat(5, 1fr); gap:4px; }
+‎.mob-btn { background:transparent; border:none; color:var(--muted); padding:8px 4px; border-radius:12px; font-size:10px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; }
+‎.mob-btn.active { color:#7C5CFF; }
+‎.menu-toggle { display:none; }
+‎
+‎@media(max-width:900px){
+‎  .sidebar { transform:translateX(-100%); } .sidebar.open { transform:translateX(0); }
+‎  .main { margin-left:0; } .menu-toggle { display:block; }
+‎  .grid4 { grid-template-columns:repeat(2, 1fr); } .grid3, .grid2 { grid-template-columns:1fr; }
+‎  .timetable { grid-template-columns:50px repeat(7, 1fr); font-size:10px; overflow-x:auto; }
+‎  .content { padding:20px 16px 90px; } .mobile-nav { display:grid; } .topbar { padding:12px 16px; }
+‎}
+‎</style>
+‎</head>
+‎<body>
+‎
+‎<nav class="sidebar" id="sidebar">
+‎  <div class="logo"><div class="logo-icon">⚡</div> StudyFlow</div>
+‎  <div class="nav">
+‎    <button class="nav-btn active" data-go="dashboard">📊 Dashboard</button>
+‎    <button class="nav-btn" data-go="tasks">✅ Tasks</button>
+‎    <button class="nav-btn" data-go="timetable">📅 Timetable</button>
+‎    <button class="nav-btn" data-go="pomodoro">⏱️ Pomodoro</button>
+‎    <button class="nav-btn" data-go="subjects">📚 Subjects</button>
+‎    <button class="nav-btn" data-go="exams">🎯 Exams</button>
+‎    <button class="nav-btn" data-go="notes">📝 Notes</button>
+‎  </div>
+‎  <div class="sidebar-foot">
+‎    <div class="streak-card">
+‎      <div style="font-size:28px; font-weight:800;" id="streakNum">7</div>
+‎      <div style="font-size:12px; opacity:0.9;">Day Streak 🔥</div>
+‎      <div style="font-size:11px; margin-top:8px; opacity:0.8;" id="todayDone">0/0 tasks done</div>
+‎    </div>
+‎  </div>
+‎</nav>
+‎
+‎<div class="main">
+‎  <div class="topbar">
+‎    <div style="display:flex; gap:12px; align-items:center; flex:1;">
+‎      <button class="theme-btn menu-toggle" onclick="toggleSidebar()">☰</button>
+‎      <div class="search"><span>🔍</span><input id="globalSearch" placeholder="Search tasks, notes, subjects..."></div>
+‎    </div>
+‎    <div style="display:flex; gap:10px; align-items:center;">
+‎      <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">☀️</button>
+‎      <div style="width:40px; height:40px; border-radius:12px; background:var(--gradient); display:grid; place-items:center; color:white; font-weight:700;">A</div>
+‎    </div>
+‎  </div>
+‎
+‎  <div class="content">
+‎    <!-- DASHBOARD -->
+‎    <section class="section active" id="dashboard">
+‎      <h1 style="font-size:28px; margin-bottom:6px;">Good evening, Alex 👋</h1>
+‎      <p style="color:var(--muted); margin-bottom:24px;">Here's what's happening with your studies today.</p>
+‎      <div class="grid4">
+‎        <div class="card"><div style="display:flex; justify-content:space-between;"><div><p style="color:var(--muted); font-size:13px;">Tasks Today</p><h2 id="statTasks">0</h2></div><div class="stat-icon" style="background:#EEF2FF; color:#7C5CFF;">✅</div></div><div class="progress" style="margin-top:12px;"><div class="progress-bar" id="statTasksBar" style="width:0%"></div></div></div>
+‎        <div class="card"><div style="display:flex; justify-content:space-between;"><div><p style="color:var(--muted); font-size:13px;">Focus Time</p><h2 id="statFocus">0h 0m</h2></div><div class="stat-icon" style="background:#FFF7ED; color:#F97316;">⏱️</div></div><p style="font-size:12px; color:var(--muted); margin-top:12px;" id="statSessions">0 pomodoros today</p></div>
+‎        <div class="card"><div style="display:flex; justify-content:space-between;"><div><p style="color:var(--muted); font-size:13px;">Next Exam</p><h2 id="statExam">-</h2></div><div class="stat-icon" style="background:#FEF2F2; color:#EF4444;">🎯</div></div><p style="font-size:12px; color:var(--muted); margin-top:12px;" id="statExamSub">No exams</p></div>
+‎        <div class="card"><div style="display:flex; justify-content:space-between;"><div><p style="color:var(--muted); font-size:13px;">Weekly Goal</p><h2 id="statGoal">0%</h2></div><div class="stat-icon" style="background:#F0FDF4; color:#22C55E;">📈</div></div><div class="progress" style="margin-top:12px;"><div class="progress-bar" id="statGoalBar" style="width:0%"></div></div></div>
+‎      </div>
+‎
+‎      <div class="grid2" style="margin-top:16px;">
+‎        <div class="card">
+‎          <h3>Weekly Progress</h3>
+‎          <div style="display:flex; align-items:end; gap:8px; height:120px; margin-top:16px;" id="weekChart"></div>
+‎          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:8px;"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+‎        </div>
+‎        <div class="card">
+‎          <div style="display:flex; justify-content:space-between; align-items:center;"><h3>Upcoming Tasks</h3><button class="btn btn-sm" onclick="go('tasks')">View all</button></div>
+‎          <div id="dashTasks" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;"></div>
+‎        </div>
+‎      </div>
+‎    </section>
+‎
+‎    <!-- TASKS -->
+‎    <section class="section" id="tasks">
+‎      <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:20px;">
+‎        <h1>Task Manager</h1>
+‎        <button class="btn" onclick="openTaskModal()">+ New Task</button>
+‎      </div>
+‎      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+‎        <select class="select" style="width:auto;" id="filterStatus" onchange="renderTasks()"><option value="all">All Tasks</option><option value="pending">Pending</option><option value="done">Completed</option></select>
+‎        <select class="select" style="width:auto;" id="filterSubject" onchange="renderTasks()"><option value="all">All Subjects</option></select>
+‎      </div>
+‎      <div id="taskList" style="display:flex; flex-direction:column; gap:10px;"></div>
+‎    </section>
+‎
+‎    <!-- TIMETABLE -->
+‎    <section class="section" id="timetable">
+‎      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+‎        <h1>Weekly Timetable</h1>
+‎        <button class="btn" onclick="openTTModal()">+ Add Class</button>
+‎      </div>
+‎      <div class="card" style="overflow-x:auto;">
+‎        <div class="timetable" id="timetableGrid"></div>
+‎      </div>
+‎    </section>
+‎
+‎    <!-- POMODORO -->
+‎    <section class="section" id="pomodoro">
+‎      <h1 style="text-align:center;">Pomodoro Timer</h1>
+‎      <p style="text-align:center; color:var(--muted); margin-bottom:24px;">Stay focused, take smart breaks</p>
+‎      <div class="card" style="max-width:500px; margin:0 auto; text-align:center;">
+‎        <div style="display:flex; justify-content:center; gap:8px; margin-bottom:20px;">
+‎          <button class="btn btn-ghost btn-sm" id="pomoModeFocus" onclick="setPomoMode('focus')">Focus 25m</button>
+‎          <button class="btn btn-ghost btn-sm" id="pomoModeBreak" onclick="setPomoMode('break')">Break 5m</button>
+‎          <button class="btn btn-ghost btn-sm" id="pomoModeLong" onclick="setPomoMode('long')">Long 15m</button>
+‎        </div>
+‎        <div class="timer-circle" id="timerCircle">
+‎          <div><div style="font-size:56px; font-weight:800;" id="timerDisplay">25:00</div><div style="color:var(--muted);" id="timerLabel">Ready to focus?</div></div>
+‎        </div>
+‎        <div style="display:flex; justify-content:center; gap:12px; margin-top:24px;">
+‎          <button class="btn" id="timerBtn" onclick="toggleTimer()" style="padding:14px 36px; border-radius:30px; font-size:16px;">▶ Start</button>
+‎          <button class="btn btn-ghost" onclick="resetTimer()">↻ Reset</button>
+‎        </div>
+‎        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:24px; border-top:1px solid var(--border); padding-top:20px;">
+‎          <div><div style="font-size:22px; font-weight:700;" id="pomoCount">0</div><div style="font-size:12px; color:var(--muted);">Sessions</div></div>
+‎          <div><div style="font-size:22px; font-weight:700;" id="pomoTime">0h</div><div style="font-size:12px; color:var(--muted);">Focus time</div></div>
+‎          <div><div style="font-size:22px; font-weight:700;">🔥 7</div><div style="font-size:12px; color:var(--muted);">Streak</div></div>
+‎        </div>
+‎      </div>
+‎    </section>
+‎
+‎    <!-- SUBJECTS -->
+‎    <section class="section" id="subjects">
+‎      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+‎        <h1>Subject Tracker</h1>
+‎        <button class="btn" onclick="openSubjectModal()">+ Add Subject</button>
+‎      </div>
+‎      <div class="grid3" id="subjectGrid"></div>
+‎    </section>
+‎
+‎    <!-- EXAMS -->
+‎    <section class="section" id="exams">
+‎      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+‎        <h1>Exam Countdown</h1>
+‎        <button class="btn" onclick="openExamModal()">+ Add Exam</button>
+‎      </div>
+‎      <div class="grid2" id="examGrid"></div>
+‎    </section>
+‎
+‎    <!-- NOTES -->
+‎    <section class="section" id="notes">
+‎      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+‎        <h1>Study Notes</h1>
+‎        <button class="btn" onclick="openNoteModal()">+ New Note</button>
+‎      </div>
+‎      <div class="grid2" id="notesGrid"></div>
+‎    </section>
+‎  </div>
+‎</div>
+‎
+‎<!-- Mobile Nav -->
+‎<div class="mobile-nav">
+‎  <button class="mob-btn active" data-go="dashboard">📊<span>Home</span></button>
+‎  <button class="mob-btn" data-go="tasks">✅<span>Tasks</span></button>
+‎  <button class="mob-btn" data-go="pomodoro">⏱️<span>Focus</span></button>
+‎  <button class="mob-btn" data-go="subjects">📚<span>Subjects</span></button>
+‎  <button class="mob-btn" data-go="notes">📝<span>Notes</span></button>
+‎</div>
+‎
+‎<!-- Modals -->
+‎<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:50; place-items:center; padding:16px;">
+‎  <div class="card" style="width:100%; max-width:480px; max-height:90vh; overflow:auto;" id="modalContent"></div>
+‎</div>
+‎
+‎<script>
+‎const $ = s => document.querySelector(s);
+‎const $$ = s => document.querySelectorAll(s);
+‎let tasks = JSON.parse(localStorage.getItem('sf_tasks')||'[]');
+‎let timetable = JSON.parse(localStorage.getItem('sf_tt')||'[]');
+‎let subjects = JSON.parse(localStorage.getItem('sf_subjects')||'[{"name":"Mathematics","color":"#7C5CFF","hours":12,"target":30},{"name":"Physics","color":"#3B82F6","hours":8,"target":25},{"name":"Chemistry","color":"#06B6D4","hours":5,"target":20}]');
+‎let exams = JSON.parse(localStorage.getItem('sf_exams')||'[]');
+‎let notes = JSON.parse(localStorage.getItem('sf_notes')||'[]');
+‎let stats = JSON.parse(localStorage.getItem('sf_stats')||'{"sessions":0,"minutes":0,"week":[2,3,1,4,2,5,1]}');
+‎
+‎function save(){ 
+‎  localStorage.setItem('sf_tasks',JSON.stringify(tasks));
+‎  localStorage.setItem('sf_tt',JSON.stringify(timetable));
+‎  localStorage.setItem('sf_subjects',JSON.stringify(subjects));
+‎  localStorage.setItem('sf_exams',JSON.stringify(exams));
+‎  localStorage.setItem('sf_notes',JSON.stringify(notes));
+‎  localStorage.setItem('sf_stats',JSON.stringify(stats));
+‎  renderAll();
+‎}
+‎
+‎// Navigation
+‎function go(id){
+‎  $$('.section').forEach(s=>s.classList.remove('active'));
+‎  $('#'+id).classList.add('active');
+‎  $$('.nav-btn, .mob-btn').forEach(b=>b.classList.toggle('active', b.dataset.go===id));
+‎  $('#sidebar').classList.remove('open');
+‎  window.scrollTo(0,0);
+‎}
+‎$$('.nav-btn, .mob-btn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
+‎function toggleSidebar(){ $('#sidebar').classList.toggle('open'); }
+‎
+‎// Theme
+‎function toggleTheme(){
+‎  const cur = document.documentElement.getAttribute('data-theme');
+‎  const next = cur==='dark'?'light':'dark';
+‎  document.documentElement.setAttribute('data-theme',next);
+‎  localStorage.setItem('sf_theme',next);
+‎  $('#themeBtn').textContent = next==='dark'?'☀️':'🌙';
+‎}
+‎(function(){
+‎  const t=localStorage.getItem('sf_theme')||'dark';
+‎  document.documentElement.setAttribute('data-theme',t);
+‎  $('#themeBtn').textContent=t==='dark'?'☀️':'🌙';
+‎})();
+‎
+‎// Dashboard + Renders
+‎function renderAll(){
+‎  // stats
+‎  const done = tasks.filter(t=>t.done).length;
+‎  $('#statTasks').textContent = done+'/'+tasks.length;
+‎  $('#statTasksBar').style.width = tasks.length? (done/tasks.length*100)+'%' : '0%';
+‎  $('#statFocus').textContent = Math.floor(stats.minutes/60)+'h '+(stats.minutes%60)+'m';
+‎  $('#statSessions').textContent = stats.sessions+' pomodoros today';
+‎  $('#todayDone').textContent = done+'/'+tasks.length+' tasks done';
+‎  let next = exams.slice().sort((a,b)=>new Date(a.date)-new Date(b.date))[0];
+‎  if(next){
+‎    let days=Math.ceil((new Date(next.date)-new Date())/86400000);
+‎    $('#statExam').textContent = days>0? days+' days' : 'Today';
+‎    $('#statExamSub').textContent = next.name;
+‎  }
+‎  let weekTotal = stats.week.reduce((a,b)=>a+b,0);
+‎  $('#statGoal').textContent = Math.min(100, Math.round(weekTotal/20*100))+'%';
+‎  $('#statGoalBar').style.width = Math.min(100, weekTotal/20*100)+'%';
+‎
+‎  // week chart
+‎  $('#weekChart').innerHTML = stats.week.map(v=>`<div style="flex:1; background:var(--gradient); border-radius:8px 8px 0 0; height:${Math.max(12,v*20)}px; opacity:${0.6+v*0.08}"></div>`).join('');
+‎
+‎  // dash tasks
+‎  $('#dashTasks').innerHTML = tasks.slice(0,4).map(t=>`<div style="display:flex; gap:10px; align-items:center; padding:10px; background:var(--bg2); border-radius:12px; border:1px solid var(--border);"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${t.id}')"><div style="flex:1;"><p style="font-size:13px; font-weight:600;">${t.title}</p><p style="font-size:11px; color:var(--muted);">${t.subject} • ${t.date}</p></div><span class="badge" style="background:${t.priority==='High'?'#FEE2E2':'#F3F0FF'}; color:${t.priority==='High'?'#EF4444':'#7C5CFF'}">${t.priority}</span></div>`).join('') || '<p style="color:var(--muted); font-size:13px;">No tasks yet. Add one!</p>';
+‎
+‎  renderTasks(); renderTT(); renderSubjects(); renderExams(); renderNotes();
+‎  $('#filterSubject').innerHTML = '<option value="all">All Subjects</option>' + subjects.map(s=>`<option value="${s.name}">${s.name}</option>`).join('');
+‎  $('#pomoCount').textContent = stats.sessions;
+‎  $('#pomoTime').textContent = Math.floor(stats.minutes/60)+'h '+(stats.minutes%60)+'m';
+‎}
+‎
+‎// Tasks
+‎function renderTasks(){
+‎  const s = $('#filterStatus').value, sub = $('#filterSubject').value;
+‎  let list = tasks.filter(t=>{
+‎    if(s==='done' && !t.done) return false;
+‎    if(s==='pending' && t.done) return false;
+‎    if(sub!=='all' && t.subject!==sub) return false;
+‎    if($('#globalSearch').value && !t.title.toLowerCase().includes($('#globalSearch').value.toLowerCase())) return false;
+‎    return true;
+‎  });
+‎  $('#taskList').innerHTML = list.map(t=>`
+‎    <div class="task ${t.done?'done':''}">
+‎      <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${t.id}')" style="width:20px; height:20px;">
+‎      <div style="flex:1;">
+‎        <p style="font-weight:600;">${t.title}</p>
+‎        <p style="font-size:12px; color:var(--muted);">${t.subject} • ${t.date} • ${t.priority}</p>
+‎      </div>
+‎      <button class="btn btn-ghost btn-sm" onclick="deleteTask('${t.id}')">🗑️</button>
+‎    </div>
+‎  `).join('') || '<div class="card" style="text-align:center; color:var(--muted);">No tasks found. Create your first task! 🚀</div>';
+‎}
+‎function openTaskModal(){
+‎  showModal(`
+‎    <h3>Add New Task</h3>
+‎    <div style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+‎      <input class="input" id="tTitle" placeholder="Task title (e.g. Revise Chapter 5)">
+‎      <select class="select" id="tSubject">${subjects.map(s=>`<option>${s.name}</option>`).join('')}</select>
+‎      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+‎        <input class="input" id="tDate" type="date">
+‎        <select class="select" id="tPriority"><option>High</option><option selected>Medium</option><option>Low</option></select>
+‎      </div>
+‎      <button class="btn" onclick="addTask()">Add Task</button>
+‎    </div>
+‎  `);
+‎}
+‎function addTask(){
+‎  if(!$('#tTitle').value) return alert('Enter title');
+‎  tasks.unshift({id:Date.now()+'', title:$('#tTitle').value, subject:$('#tSubject').value, date:$('#tDate').value||new Date().toISOString().slice(0,10), priority:$('#tPriority').value, done:false});
+‎  closeModal(); save();
+‎}
+‎function toggleTask(id){ const t=tasks.find(x=>x.id===id); if(t) t.done=!t.done; save(); }
+‎function deleteTask(id){ tasks=tasks.filter(t=>t.id!==id); save(); }
+‎
+‎// Timetable
+‎const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+‎const times=['08:00','10:00','12:00','14:00','16:00','18:00'];
+‎function renderTT(){
+‎  let html='<div class="tt-head"></div>'+days.map(d=>`<div class="tt-head">${d}</div>`).join('');
+‎  times.forEach(time=>{
+‎    html+=`<div class="tt-time">${time}</div>`;
+‎    days.forEach(day=>{
+‎      const ev=timetable.find(e=>e.day===day && e.time===time);
+‎      html+= ev ? `<div class="tt-cell has-event"><b>${ev.subject}</b><small>${ev.room||''}</small></div>` : `<div class="tt-cell"></div>`;
+‎    });
+‎  });
+‎  $('#timetableGrid').innerHTML=html;
+‎}
+‎function openTTModal(){
+‎  showModal(`
+‎    <h3>Add Class</h3>
+‎    <div style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+‎      <select class="select" id="ttDay">${days.map(d=>`<option>${d}</option>`).join('')}</select>
+‎      <select class="select" id=ime">${times.map(t=>`<option>${t}</option>`).join(\'\')}</select>
+      <select class="select" id="ttSubject">${subjects.map(s=>`<option>${s.name}</option>`).join(\'\')}</select>
+      <input class="input" id="ttRoom" placeholder="Room / Location (optional)">
+      <button class="btn" onclick="addTT()">Add to Timetable</button>
+    </div>
+  `);
+}
+function addTT(){
+  const day=$(\'#ttDay\').value, time=$(\'#ttTime\').value, subject=$(\'#ttSubject\').value, room=$(\'#ttRoom\').value;
+  timetable = timetable.filter(e=> !(e.day===day && e.time===time));
+  timetable.push({day,time,subject,room});
+  closeModal(); save();
+}
+
+// Subjects
+function renderSubjects(){
+  $(\'#subjectGrid\').innerHTML = subjects.map(s=>`
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; gap:12px; align-items:center;"><div style="width:12px; height:12px; border-radius:50%; background:${s.color}"></div><h3>${s.name}</h3></div>
+        <button class="btn btn-ghost btn-sm" onclick="deleteSubject(\'${s.name}\')">✕</button>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:16px; color:var(--muted);"><span>${s.hours}h / ${s.target}h</span><span>${Math.round(s.hours/s.target*100)}%</span></div>
+      <div class="progress" style="margin-top:8px;"><div class="progress-bar" style="width:${Math.min(100, s.hours/s.target*100)}%; background:${s.color}"></div></div>
+      <div style="display:flex; gap:8px; margin-top:14px;"><button class="btn btn-sm" style="flex:1;" onclick="addHours(\'${s.name}\',1)">+1 Hour</button><button class="btn btn-ghost btn-sm" onclick="addHours(\'${s.name}\',-1)">-1h</button></div>
+    </div>
+  `).join(\'\') || \'<p style="color:var(--muted)">No subjects yet.</p>\';
+}
+function openSubjectModal(){
+  showModal(`
+    <h3>Add Subject</h3>
+    <div style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+      <input class="input" id="sName" placeholder="Subject name (e.g. Biology)">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <input class="input" id="sTarget" type="number" placeholder="Target hours (e.g. 30)">
+        <input class="input" id="sColor" type="color" value="#7C5CFF" style="height:44px; padding:4px;">
+      </div>
+      <button class="btn" onclick="addSubject()">Add Subject</button>
+    </div>
+  `);
+}
+function addSubject(){
+  if(!$(\'#sName\').value) return alert(\'Enter subject name\');
+  subjects.push({name:$(\'#sName\').value, target: parseInt($(\'#sTarget\').value)||20, color:$(\'#sColor\').value, hours:0});
+  closeModal(); save();
+}
+function deleteSubject(name){ subjects=subjects.filter(s=>s.name!==name); save(); }
+function addHours(name, n){ const s=subjects.find(x=>x.name===name); if(s) s.hours=Math.max(0, s.hours+n); save(); }
+
+// Exams
+function renderExams(){
+  $(\'#examGrid\').innerHTML = exams.map(e=>{
+    const days=Math.ceil((new Date(e.date)-new Date())/86400000);
+    const urgent = days<=3;
+    return `<div class="card" style="border-left:4px solid ${urgent?\'#EF4444\':\'#7C5CFF\'}">
+      <div style="display:flex; justify-content:space-between;"><h3>${e.name}</h3><button class="btn btn-ghost btn-sm" onclick="deleteExam(\'${e.id}\')">🗑️</button></div>
+      <p style="font-size:13px; color:var(--muted);">${e.subject} • ${e.date}</p>
+      <div style="font-size:36px; font-weight:800; margin-top:12px; color:${urgent?\'#EF4444\':\'#7C5CFF\'}">${days>0?days:0} <span style="font-size:14px; font-weight:600;">days left</span></div>
+      <div class="progress" style="margin-top:12px;"><div class="progress-bar" style="width:${Math.max(5, 100 - days*2)}%; background:${urgent?\'#EF4444\':\'var(--gradient)\'}"></div></div>
+    </div>`
+  }).join(\'\') || \'<div class="card" style="text-align:center; color:var(--muted); grid-column:1/-1;">No exams added. Add your first exam! 🎯</div>\';
+}
+function openExamModal(){
+  showModal(`
+    <h3>Add Exam</h3>
+    <div style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+      <input class="input" id="eName" placeholder="Exam name (e.g. Final Mathematics)">
+      <select class="select" id="eSubject">${subjects.map(s=>`<option>${s.name}</option>`).join(\'\')}</select>
+      <input class="input" id="eDate" type="date">
+      <button class="btn" onclick="addExam()">Add Exam</button>
+    </div>
+  `);
+}
+function addExam(){
+  if(!$(\'#eName\').value || !$(\'#eDate\').value) return alert(\'Fill all fields\');
+  exams.push({id:Date.now()+\'\', name:$(\'#eName\').value, subject:$(\'#eSubject\').value, date:$(\'#eDate\').value});
+  closeModal(); save();
+}
+function deleteExam(id){ exams=exams.filter(e=>e.id!==id); save(); }
+
+// Notes
+function renderNotes(){
+  let list = notes;
+  const q = $(\'#globalSearch\').value.toLowerCase();
+  if(q) list = list.filter(n=> n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q));
+  $(\'#notesGrid\').innerHTML = list.map(n=>`
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; gap:12px;"><h3 style="font-size:16px;">${n.title}</h3><button class="btn btn-ghost btn-sm" onclick="deleteNote(\'${n.id}\')">🗑️</button></div>
+      <p style="font-size:12px; color:var(--muted); margin-top:4px;">${n.subject} • ${n.date}</p>
+      <p style="font-size:14px; margin-top:12px; line-height:1.6; white-space:pre-wrap;">${n.content}</p>
+    </div>
+  `).join(\'\') || \'<div class="card" style="text-align:center; color:var(--muted); grid-column:1/-1;">No notes yet. Create your first note! 📝</div>\';
+}
+function openNoteModal(){
+  showModal(`
+    <h3>New Note</h3>
+    <div style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+      <input class="input" id="nTitle" placeholder="Note title">
+      <select class="select" id="nSubject">${subjects.map(s=>`<option>${s.name}</option>`).join(\'\')}</select>
+      <textarea class="textarea" id="nContent" rows="5" placeholder="Write your notes here..."></textarea>
+      <button class="btn" onclick="addNote()">Save Note</button>
+    </div>
+  `);
+}
+function addNote(){
+  if(!$(\'#nTitle\').value || !$(\'#nContent\').value) return alert(\'Fill title and content\');
+  notes.unshift({id:Date.now()+\'\', title:$(\'#nTitle\').value, subject:$(\'#nSubject\').value, content:$(\'#nContent\').value, date:new Date().toISOString().slice(0,10)});
+  closeModal(); save();
+}
+function deleteNote(id){ notes=notes.filter(n=>n.id!==id); save(); }
+
+// Pomodoro
+let pomoMode=\'focus\', pomoLeft=25*60, pomoTimer=null, pomoRunning=false;
+const pomoTimes={focus:25*60, break:5*60, long:15*60};
+function setPomoMode(m){
+  pomoMode=m; pomoLeft=pomoTimes[m]; pomoRunning=false; clearInterval(pomoTimer);
+  $$(\'#pomoModeFocus, #pomoModeBreak, #pomoModeLong\').forEach(b=>b.style.background=\'\');
+  $(\'#pomoMode\'+m.charAt(0).toUpperCase()+m.slice(1)).style.background=\'var(--gradient)\';
+  $(\'#pomoMode\'+m.charAt(0).toUpperCase()+m.slice(1)).style.color=\'white\';
+  updateTimerDisplay(); $(\'#timerBtn\').textContent=\'▶ Start\'; $(\'#timerCircle\').classList.remove(\'active\');
+}
+function updateTimerDisplay(){
+  const m=String(Math.floor(pomoLeft/60)).padStart(2,\'0\'), s=String(pomoLeft%60).padStart(2,\'0\');
+  $(\'#timerDisplay\').textContent=`${m}:${s}`;
+  $(\'#timerLabel\').textContent = pomoMode===\'focus\'?\'Focus Session\': pomoMode===\'break\'?\'Short Break\':\'Long Break\';
+}
+function toggleTimer(){
+  if(pomoRunning){ clearInterval(pomoTimer); pomoRunning=false; $(\'#timerBtn\').textContent=\'▶ Resume\'; $(\'#timerCircle\').classList.remove(\'active\'); return; }
+  pomoRunning=true; $(\'#timerBtn\').textContent=\'⏸ Pause\'; $(\'#timerCircle\').classList.add(\'active\');
+  pomoTimer=setInterval(()=>{
+    pomoLeft--; updateTimerDisplay();
+    if(pomoLeft<=0){
+      clearInterval(pomoTimer); pomoRunning=false;
+      new Audio(\'https://actions.google.com/sounds/v1/alarms/beep_short.ogg\').play().catch(()=>{});
+      if(pomoMode===\'focus\'){ stats.sessions++; stats.minutes+=25; stats.week[new Date().getDay()==0?6:new Date().getDay()-1]++; save(); }
+      alert(pomoMode===\'focus\' ? \'Focus session done! Take a break 🎉\' : \'Break over! Ready to focus?\');
+      resetTimer();
+    }
+  },1000);
+}
+function resetTimer(){ clearInterval(pomoTimer); pomoRunning=false; pomoLeft=pomoTimes[pomoMode]; updateTimerDisplay(); $(\'#timerBtn\').textContent=\'▶ Start\'; $(\'#timerCircle\').classList.remove(\'active\'); }
+
+// Modal helpers + Search
+function showModal(html){
+  $(\'#modalContent\').innerHTML = html + `<button onclick="closeModal()" style="margin-top:12px; width:100%;" class="btn btn-ghost">Cancel</button>`;
+  $(\'#modal\').style.display=\'grid\';
+}
+function closeModal(){ $(\'#modal\').style.display=\'none\'; }
+$(\'#modal\').addEventListener(\'click\', e=>{ if(e.target.id===\'modal\') closeModal(); });
+$(\'#globalSearch\').addEventListener(\'input\', ()=>{ renderTasks(); renderNotes(); });
+
+// Init
+setPomoMode(\'focus\');
+renderAll();
+</script>
+</body>
+</html>
+‎
